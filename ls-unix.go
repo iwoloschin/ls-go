@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strings"
 	"syscall"
 )
 
@@ -16,6 +17,10 @@ func getOwnerAndGroup(fileInfo *os.FileInfo) (string, string) {
 	owner, err := user.LookupId(uid)
 	check(err)
 	group, err := user.LookupGroupId(gid)
-	check(err)
+	if err != nil && strings.Contains(err.Error(), "unknown groupid") {
+		return owner.Username, gid
+	} else {
+		check(err)
+	}
 	return owner.Username, group.Name
 }

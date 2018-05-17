@@ -15,10 +15,16 @@ func getOwnerAndGroup(fileInfo *os.FileInfo) (string, string) {
 	uid := fmt.Sprint(stat_t.Uid)
 	gid := fmt.Sprint(stat_t.Gid)
 	owner, err := user.LookupId(uid)
-	check(err)
+	if err != nil && strings.Contains(err.Error(), "unknown userid") {
+		owner = new(user.User)
+		owner.Username = uid
+	} else {
+		check(err)
+	}
 	group, err := user.LookupGroupId(gid)
 	if err != nil && strings.Contains(err.Error(), "unknown groupid") {
-		return owner.Username, gid
+		group = new(user.Group)
+		group.Name = gid
 	} else {
 		check(err)
 	}
